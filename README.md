@@ -16,6 +16,7 @@ The one remaining issue is manual updating of the storage and alignment requirem
 * http://lists.boost.org/Archives/boost/2005/10/95366.php
 * http://lists.boost.org/Archives/boost/2006/05/104757.php
 * http://lists.boost.org/Archives/boost/2007/10/128740.php
+* http://boost.2283326.n4.nabble.com/pimpl-library-proposal-td3070819.html
 * http://www.drdobbs.com/cpp/making-pimpl-easy/205918714
 * http://www.boost.org/doc/libs/release/libs/smart_ptr/sp_techniques.html#pimpl
 * http://www.cppsamples.com/common-tasks/pimpl.html
