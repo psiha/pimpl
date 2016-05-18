@@ -14,6 +14,7 @@ The one remaining issue is manual updating of the storage and alignment requirem
 * https://github.com/sean-/boost-pimpl
 * https://github.com/yet-another-user/pimpl
 * http://loki-lib.cvs.sourceforge.net/viewvc/loki-lib/loki/include/loki/Pimpl.h?view=markup
+* http://lists.boost.org/Archives/boost/2001/06/13214.php "[boost] impl_ptr"
 * http://lists.boost.org/Archives/boost/2005/10/95366.php "[boost] Review Request: pimpl"
 * http://lists.boost.org/Archives/boost/2006/05/104757.php "[boost] [review][pimpl_ptr]"
 * http://lists.boost.org/Archives/boost/2007/10/128740.php "[boost] [pimpl] Proposal. Determining interest."
@@ -21,6 +22,7 @@ The one remaining issue is manual updating of the storage and alignment requirem
 * http://boost.2283326.n4.nabble.com/pimpl-library-proposal-td3070819.html "pimpl library proposal" (Michael Bailey)
 * http://www.drdobbs.com/cpp/making-pimpl-easy/205918714 "Making Pimpl Easy"
 * https://marcmutz.wordpress.com/translated-articles/pimp-my-pimpl-—-reloaded "Pimp My Pimpl — Reloaded"
+* https://probablydance.com/2013/10/05/type-safe-pimpl-implementation-without-overhead
 * http://www.boost.org/doc/libs/release/libs/smart_ptr/sp_techniques.html#pimpl
 * http://www.cppsamples.com/common-tasks/pimpl.html
 * http://www.gotw.ca/gotw/028.htm "The Fast Pimpl Idiom"
