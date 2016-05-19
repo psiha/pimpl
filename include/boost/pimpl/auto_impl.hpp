@@ -63,7 +63,7 @@ namespace detail
         static constexpr bool move     = noexcept( impl_t( impl_t()                     ) );
         template <typename ... Args>
         static constexpr bool construction_from( Args && ... args ) noexcept { return noexcept( impl_t( std::forward<Args>( args )... ) ); }
-    };
+    }; // struct is_noexcept
 
     /// \note MSVC14u2 chokes on 'different exception specifications' between
     /// declaration and definition (even if the specification at the definition
