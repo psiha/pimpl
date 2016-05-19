@@ -37,7 +37,13 @@ namespace pimpl
 /// \brief Tag struct for the 'perfect forwarding' generic constructor (to
 /// prevent it from interfering with overload resolution for the 'standard'
 /// constructors).
-/// \details Thanks to https://probablydance.com/2013/10/05/type-safe-pimpl-implementation-without-overhead
+/// \details Handling these issues with SFINAE and allowing the client interface
+/// class to simply import the library provided constructors with a using
+/// directive fails due to language defects:
+/// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4429.html
+/// https://llvm.org/bugs/show_bug.cgi?id=20173
+///
+/// Thanks to https://probablydance.com/2013/10/05/type-safe-pimpl-implementation-without-overhead
 /// for the idea.
 ///
 ////////////////////////////////////////////////////////////////////////////////
