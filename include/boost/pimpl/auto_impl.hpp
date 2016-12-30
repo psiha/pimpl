@@ -97,6 +97,36 @@ auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::auto_object
     new ( &storage ) impl_t( other.impl() );
 }
 
+// Move assign //////////////////////////////////////////////////////////////////
+template
+<
+    class Interface,
+    std::uint32_t SizeOfImplementation,
+    std::uint8_t  AlignOfImplementation
+>
+auto_object<Interface, SizeOfImplementation, AlignOfImplementation>& auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::operator=( auto_object && other )
+{
+    if( this != &other ) {
+        impl() = std::move( other.impl() );
+    }
+    return *this;
+}
+
+// Copy assign //////////////////////////////////////////////////////////////////
+template
+<
+    class Interface,
+    std::uint32_t SizeOfImplementation,
+    std::uint8_t  AlignOfImplementation
+>
+auto_object<Interface, SizeOfImplementation, AlignOfImplementation>& auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::operator=( auto_object const & other )
+{
+    if( this != &other ) {
+        impl() = other.impl() ;
+    }
+    return *this;
+}
+
 // Generic /////////////////////////////////////////////////////////////////////
 template
 <

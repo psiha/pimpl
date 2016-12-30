@@ -81,6 +81,8 @@ protected:
     template <typename ... Args>
     auto_object( fwd, Args && ...     );
    ~auto_object(                      ) noexcept;
+    auto_object& operator=( auto_object       && );
+    auto_object& operator=( auto_object const  & );
 
     auto       & impl()       noexcept;
     auto const & impl() const noexcept;
