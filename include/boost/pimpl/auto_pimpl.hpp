@@ -60,11 +60,16 @@ struct fwd {};
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifdef _MSC_VER
+#   pragma warning( push )
+#   pragma warning( disable : 4324 ) // Structure was padded due to alignment specifier.
+#endif // _MSC_VER
+
 template
 <
     class Interface,
     std::uint32_t SizeOfImplementation,
-    std::uint8_t  AlignOfImplementation
+    std::uint8_t  AlignOfImplementation = sizeof( void * )
 >
 class auto_object
 {
@@ -91,6 +96,10 @@ private:
     struct alignas( AlignOfImplementation ) storage_t { unsigned char raw_bytes[ SizeOfImplementation ]; };
     storage_t storage;
 }; // class auto_object
+
+#ifdef _MSC_VER
+#   pragma warning( pop )
+#endif // _MSC_VER
 
 //------------------------------------------------------------------------------
 } // namespace pimpl
