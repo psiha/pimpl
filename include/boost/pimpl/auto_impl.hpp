@@ -3,7 +3,7 @@
 /// \file auto_impl.hpp
 /// -------------------
 ///
-/// Copyright (c) Domagoj Saric 2016.
+/// Copyright (c) Domagoj Saric 2016 - 2017.
 ///
 /// WIP, wannabe Boost.Pimpl library (@ https://github.com/psiha/pimpl)
 ///
@@ -54,6 +54,13 @@ namespace detail
     template <std::size_t PlaceholderAlignment, std::size_t ImplementationAlignment> struct assert_storage_alignment { static_assert( PlaceholderAlignment >= ImplementationAlignment, "Insufficient alignment specified on interface side."    ); };
 } // namespace Detail
 
+/// \note We should/could use "typename implementation<Interface>::type" in the
+/// noexcept expressions below (to verify that the impl and interface exception
+/// specifications match. This unfortunately always fails with MSVC
+/// (tested@14.1) with 'mismatched exception specifications' as it is probably
+/// using a plain string comparison.
+///                                           (11.05.2017.) (Domagoj Saric)
+
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
 ////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +85,7 @@ template
     std::uint32_t SizeOfImplementation,
     std::uint8_t  AlignOfImplementation
 >
-auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::auto_object( auto_object && other )
+auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::auto_object( auto_object && other ) noexcept( noexcept( Interface( Interface() ) ) )
 {
     using impl_t = typename implementation<Interface>::type;
     new ( &storage ) impl_t( std::move( other.impl() ) );
@@ -91,7 +98,7 @@ template
     std::uint32_t SizeOfImplementation,
     std::uint8_t  AlignOfImplementation
 >
-auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::auto_object( auto_object const & other )
+auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::auto_object( auto_object const & other ) noexcept( noexcept( Interface( std::declval<Interface const>() ) ) )
 {
     using impl_t = typename implementation<Interface>::type;
     new ( &storage ) impl_t( other.impl() );
@@ -104,7 +111,7 @@ template
     std::uint32_t SizeOfImplementation,
     std::uint8_t  AlignOfImplementation
 >
-auto_object<Interface, SizeOfImplementation, AlignOfImplementation>& auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::operator=( auto_object && other )
+auto_object<Interface, SizeOfImplementation, AlignOfImplementation>& auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::operator=( auto_object && other ) noexcept( std::is_nothrow_move_assignable<Interface>::value )
 {
     if( this != &other ) {
         impl() = std::move( other.impl() );
@@ -119,7 +126,7 @@ template
     std::uint32_t SizeOfImplementation,
     std::uint8_t  AlignOfImplementation
 >
-auto_object<Interface, SizeOfImplementation, AlignOfImplementation>& auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::operator=( auto_object const & other )
+auto_object<Interface, SizeOfImplementation, AlignOfImplementation>& auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::operator=( auto_object const & other ) noexcept( std::is_nothrow_copy_assignable<Interface>::value )
 {
     if( this != &other ) {
         impl() = other.impl() ;
@@ -151,7 +158,7 @@ template
     std::uint32_t SizeOfImplementation,
     std::uint8_t  AlignOfImplementation
 >
-auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::~auto_object() noexcept
+auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::~auto_object() noexcept( std::is_nothrow_destructible<Interface>::value )
 {
     using impl_t = typename implementation<Interface>::type;
 

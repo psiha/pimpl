@@ -3,7 +3,7 @@
 /// \file auto_pimpl.hpp
 /// --------------------
 ///
-/// Copyright (c) Domagoj Saric 2016.
+/// Copyright (c) Domagoj Saric 2016 - 2017.
 ///
 /// WIP, wannabe Boost.Pimpl library (@ https://github.com/psiha/pimpl)
 ///
@@ -21,6 +21,7 @@
 #pragma once
 //------------------------------------------------------------------------------
 #include <cstdint>
+#include <type_traits>
 //------------------------------------------------------------------------------
 namespace boost
 {
@@ -77,17 +78,18 @@ public:
     using pimpl_base = auto_object;
 
 protected:
-    /// \note Adding proper noexcept specifiers for contructors other than the
-    /// default one causes infinite type recursions (with Clang and MSVC).
-    ///                                       (19.05.2016.) (Domagoj Saric)
+    /// \note MSVC's (tested@14.1) is_*_constructible type traits don't work
+    /// with incomplete types.
+    ///                                       (11.05.2017.) (Domagoj Saric)
     auto_object(                      ) noexcept( noexcept( Interface() ) );
-    auto_object( auto_object       && );
-    auto_object( auto_object const  & );
+    auto_object( auto_object       && ) noexcept( noexcept( Interface( Interface() ) ) );
+    auto_object( auto_object const  & ) noexcept( noexcept( Interface( std::declval<Interface const>() ) ) );
     template <typename ... Args>
     auto_object( fwd, Args && ...     );
-   ~auto_object(                      ) noexcept;
-    auto_object& operator=( auto_object       && );
-    auto_object& operator=( auto_object const  & );
+   ~auto_object(                      ) noexcept( std::is_nothrow_destructible<Interface>::value );
+
+    auto_object& operator=( auto_object       && ) noexcept( std::is_nothrow_move_assignable<Interface>::value );
+    auto_object& operator=( auto_object const  & ) noexcept( std::is_nothrow_copy_assignable<Interface>::value );
 
     auto       & impl()       noexcept;
     auto const & impl() const noexcept;
