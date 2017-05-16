@@ -78,8 +78,21 @@ public:
     using pimpl_base = auto_object;
 
 protected:
-    /// \note MSVC's (tested@14.1) is_*_constructible type traits don't work
-    /// with incomplete types.
+    /// <VAR>Interface</VAR> has to explicitly declare its constructors,
+    /// destructor and assignment operators (if it uses/provides them) and their
+    /// respective exception specification or deleted status (otherwise
+    /// compilation fails here due to infinite template instantiation recursion)
+    /// - this is by design:
+    /// * to force API authors to write self-documenting interfaces
+    /// * to prevent the compiler from assuming all of the defaultable functions
+    /// (except the destructor) to be possibly throwing
+    /// * to enable terse/defaulted noexcept implementations (e.g.:
+    /// Impl::Impl( Impl && ) noexcept = default; instead of
+    /// Impl::Impl( Impl && other ) noexcept : pimpl_base( std::move( other )
+    /// {}).
+    ///
+    /// \note MSVC's (tested@14.1) is_*_constructible type traits do not work
+    /// here (with incomplete types).
     ///                                       (11.05.2017.) (Domagoj Saric)
     auto_object(                      ) noexcept( noexcept( Interface() ) );
     auto_object( auto_object       && ) noexcept( noexcept( Interface( Interface() ) ) );
