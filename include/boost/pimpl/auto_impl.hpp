@@ -177,10 +177,15 @@ auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::~auto_objec
 /// \brief Returns an implementation instance for an interface instance.
 ///
 ////////////////////////////////////////////////////////////////////////////////
-
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
 template <class Interface, std::uint32_t sz, std::uint8_t al> auto       & auto_object<Interface, sz, al>::impl()       noexcept { return reinterpret_cast<typename implementation<Interface>::type &>( storage ); }
 template <class Interface, std::uint32_t sz, std::uint8_t al> auto const & auto_object<Interface, sz, al>::impl() const noexcept { return const_cast<auto_object &>( *this ).impl(); } ///< \overload
-
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
