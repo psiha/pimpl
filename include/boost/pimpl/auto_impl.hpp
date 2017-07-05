@@ -36,14 +36,13 @@ namespace pimpl
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
-/// \struct implementation
+/// \class implementation
 ///
 /// \brief Interface -> implementation mapping metafunction.
 /// \details By default maps to the Interface::implementation member type. Can
 /// be specialized to use a different mapping.
 ///
 ////////////////////////////////////////////////////////////////////////////////
-
 template <class Interface>
 struct implementation { using type = typename Interface::implementation; };
 
