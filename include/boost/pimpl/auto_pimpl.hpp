@@ -3,7 +3,7 @@
 /// \file auto_pimpl.hpp
 /// --------------------
 ///
-/// Copyright (c) Domagoj Saric 2016.
+/// Copyright (c) Domagoj Saric 2016 - 2017.
 ///
 /// WIP, wannabe Boost.Pimpl library (@ https://github.com/psiha/pimpl)
 ///
@@ -21,6 +21,7 @@
 #pragma once
 //------------------------------------------------------------------------------
 #include <cstdint>
+#include <type_traits>
 //------------------------------------------------------------------------------
 namespace boost
 {
@@ -60,11 +61,16 @@ struct fwd {};
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifdef _MSC_VER
+#   pragma warning( push )
+#   pragma warning( disable : 4324 ) // Structure was padded due to alignment specifier.
+#endif // _MSC_VER
+
 template
 <
     class Interface,
     std::uint32_t SizeOfImplementation,
-    std::uint8_t  AlignOfImplementation
+    std::uint8_t  AlignOfImplementation = sizeof( void * )
 >
 class auto_object
 {
@@ -72,15 +78,31 @@ public:
     using pimpl_base = auto_object;
 
 protected:
-    /// \note Adding proper noexcept specifiers for contructors other than the
-    /// default one causes infinite type recursions (with Clang and MSVC).
-    ///                                       (19.05.2016.) (Domagoj Saric)
+    /// <VAR>Interface</VAR> has to explicitly declare its constructors,
+    /// destructor and assignment operators (if it uses/provides them) and their
+    /// respective exception specification or deleted status (otherwise
+    /// compilation fails here due to infinite template instantiation recursion)
+    /// - this is by design:
+    /// * to force API authors to write self-documenting interfaces
+    /// * to prevent the compiler from assuming all of the defaultable functions
+    /// (except the destructor) to be possibly throwing
+    /// * to enable terse/defaulted noexcept implementations (e.g.:
+    /// Impl::Impl( Impl && ) noexcept = default; instead of
+    /// Impl::Impl( Impl && other ) noexcept : pimpl_base( std::move( other )
+    /// {}).
+    ///
+    /// \note MSVC's (tested@14.1) is_*_constructible type traits do not work
+    /// here (with incomplete types).
+    ///                                       (11.05.2017.) (Domagoj Saric)
     auto_object(                      ) noexcept( noexcept( Interface() ) );
-    auto_object( auto_object       && );
-    auto_object( auto_object const  & );
+    auto_object( auto_object       && ) noexcept( noexcept( Interface( Interface() ) ) );
+    auto_object( auto_object const  & ) noexcept( noexcept( Interface( std::declval<Interface const>() ) ) );
     template <typename ... Args>
     auto_object( fwd, Args && ...     );
-   ~auto_object(                      ) noexcept;
+   ~auto_object(                      ) noexcept( std::is_nothrow_destructible<Interface>::value );
+
+    auto_object& operator=( auto_object       && ) noexcept( std::is_nothrow_move_assignable<Interface>::value );
+    auto_object& operator=( auto_object const  & ) noexcept( std::is_nothrow_copy_assignable<Interface>::value );
 
     auto       & impl()       noexcept;
     auto const & impl() const noexcept;
@@ -89,6 +111,10 @@ private:
     struct alignas( AlignOfImplementation ) storage_t { unsigned char raw_bytes[ SizeOfImplementation ]; };
     storage_t storage;
 }; // class auto_object
+
+#ifdef _MSC_VER
+#   pragma warning( pop )
+#endif // _MSC_VER
 
 //------------------------------------------------------------------------------
 } // namespace pimpl
