@@ -23,6 +23,7 @@
 #include "auto_pimpl.hpp"
 
 #include <cstdint>
+#include <new>
 #include <type_traits>
 #include <utility>
 //------------------------------------------------------------------------------
