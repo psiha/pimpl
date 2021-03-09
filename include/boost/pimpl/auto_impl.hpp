@@ -3,7 +3,7 @@
 /// \file auto_impl.hpp
 /// -------------------
 ///
-/// Copyright (c) Domagoj Saric 2016 - 2017.
+/// Copyright (c) Domagoj Saric 2016 - 2021.
 ///
 /// WIP, wannabe Boost.Pimpl library (@ https://github.com/psiha/pimpl)
 ///
@@ -71,7 +71,7 @@ template
     std::uint32_t SizeOfImplementation,
     std::uint8_t  AlignOfImplementation
 >
-auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::auto_object() noexcept( noexcept( Interface() ) )
+auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::auto_object() noexcept( std::is_nothrow_default_constructible_v<Interface> )
 {
     using impl_t = typename implementation<Interface>::type;
     new ( &storage ) impl_t();
@@ -84,7 +84,7 @@ template
     std::uint32_t SizeOfImplementation,
     std::uint8_t  AlignOfImplementation
 >
-auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::auto_object( auto_object && other ) noexcept( noexcept( Interface( Interface() ) ) )
+auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::auto_object( auto_object && other ) noexcept( std::is_nothrow_move_constructible_v<Interface> )
 {
     using impl_t = typename implementation<Interface>::type;
     new ( &storage ) impl_t( std::move( other.impl() ) );
@@ -97,7 +97,7 @@ template
     std::uint32_t SizeOfImplementation,
     std::uint8_t  AlignOfImplementation
 >
-auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::auto_object( auto_object const & other ) noexcept( noexcept( Interface( std::declval<Interface const>() ) ) )
+auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::auto_object( auto_object const & other ) noexcept( std::is_nothrow_copy_constructible_v<Interface> )
 {
     using impl_t = typename implementation<Interface>::type;
     new ( &storage ) impl_t( other.impl() );
@@ -157,7 +157,7 @@ template
     std::uint32_t SizeOfImplementation,
     std::uint8_t  AlignOfImplementation
 >
-auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::~auto_object() noexcept( std::is_nothrow_destructible<Interface>::value )
+auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::~auto_object() BOOST_PIMPL_MSVC16_9_WORKAROUND( noexcept( std::is_nothrow_destructible<Interface>::value ) )
 {
     using impl_t = typename implementation<Interface>::type;
 
