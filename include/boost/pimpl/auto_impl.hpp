@@ -158,7 +158,7 @@ template
     std::uint32_t SizeOfImplementation,
     std::uint8_t  AlignOfImplementation
 >
-auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::~auto_object() BOOST_PIMPL_MSVC16_9_WORKAROUND( noexcept( std::is_nothrow_destructible<Interface>::value ) )
+auto_object<Interface, SizeOfImplementation, AlignOfImplementation>::~auto_object() BOOST_PIMPL_MSVC16_9_WORKAROUND( noexcept( std::is_nothrow_destructible_v<Interface> ) )
 {
     using impl_t = typename implementation<Interface>::type;
 
