@@ -3,7 +3,7 @@
 /// \file auto_pimpl.hpp
 /// --------------------
 ///
-/// Copyright (c) Domagoj Saric 2016 - 2017.
+/// Copyright (c) Domagoj Saric 2016 - 2021.
 ///
 /// WIP, wannabe Boost.Pimpl library (@ https://github.com/psiha/pimpl)
 ///
@@ -90,16 +90,19 @@ protected:
     /// Impl::Impl( Impl && ) noexcept = default; instead of
     /// Impl::Impl( Impl && other ) noexcept : pimpl_base( std::move( other )
     /// {}).
-    ///
-    /// \note MSVC's (tested@14.1) is_*_constructible type traits do not work
-    /// here (with incomplete types).
-    ///                                       (11.05.2017.) (Domagoj Saric)
-    auto_object(                      ) noexcept( noexcept( Interface() ) );
-    auto_object( auto_object       && ) noexcept( noexcept( Interface( Interface() ) ) );
-    auto_object( auto_object const  & ) noexcept( noexcept( Interface( std::declval<Interface const>() ) ) );
+
+    // https://developercommunity.visualstudio.com/t/CRTP-PIMPL-broken-by-169/1362771
+#   if !defined( _MSC_FULL_VER ) || ( _MSC_FULL_VER < 192829910 )
+#       define BOOST_PIMPL_MSVC16_9_WORKAROUND( x ) x
+#   else
+#       define BOOST_PIMPL_MSVC16_9_WORKAROUND( x )
+#   endif // MSVC bugs
+    auto_object(                      ) noexcept( std::is_nothrow_default_constructible_v<Interface> );
+    auto_object( auto_object       && ) noexcept( std::is_nothrow_move_constructible_v   <Interface> );
+    auto_object( auto_object const  & ) noexcept( std::is_nothrow_copy_constructible_v   <Interface> );
     template <typename ... Args>
     auto_object( fwd, Args && ...     );
-   ~auto_object(                      ) noexcept( std::is_nothrow_destructible<Interface>::value );
+   ~auto_object(                      ) BOOST_PIMPL_MSVC16_9_WORKAROUND( noexcept( std::is_nothrow_destructible_v<Interface> ) );
 
     auto_object& operator=( auto_object       && ) noexcept( std::is_nothrow_move_assignable<Interface>::value );
     auto_object& operator=( auto_object const  & ) noexcept( std::is_nothrow_copy_assignable<Interface>::value );
