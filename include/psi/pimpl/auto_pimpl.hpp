@@ -1,11 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 ///
-/// \file auto_pimpl.hpp
-/// --------------------
-///
-/// Copyright (c) Domagoj Saric 2016 - 2021.
-///
-/// WIP, wannabe Boost.Pimpl library (@ https://github.com/psiha/pimpl)
+/// Copyright (c) Domagoj Saric 2016 - 2024.
 ///
 /// Use, modification and distribution is subject to the
 /// Boost Software License, Version 1.0.
@@ -16,20 +11,14 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 //------------------------------------------------------------------------------
-#ifndef pimpl_hpp__F7E7B64A_FE5D_44E9_8F3E_5B28E3DDA881
-#define pimpl_hpp__F7E7B64A_FE5D_44E9_8F3E_5B28E3DDA881
 #pragma once
-//------------------------------------------------------------------------------
+
 #include <cstdint>
 #include <type_traits>
 //------------------------------------------------------------------------------
-namespace boost
+namespace psi::pimpl
 {
 //------------------------------------------------------------------------------
-namespace pimpl
-{
-//------------------------------------------------------------------------------
-
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -77,6 +66,9 @@ class auto_object
 public:
     using pimpl_base = auto_object;
 
+    template <typename ... Args>
+    auto_object( fwd, Args && ... );
+
 protected:
     /// <VAR>Interface</VAR> has to explicitly declare its constructors,
     /// destructor and assignment operators (if it uses/provides them) and their
@@ -92,27 +84,27 @@ protected:
     /// {}).
 
     // https://developercommunity.visualstudio.com/t/CRTP-PIMPL-broken-by-169/1362771
-#   if !defined( _MSC_FULL_VER ) || ( _MSC_FULL_VER < 192829910 )
-#       define BOOST_PIMPL_MSVC16_9_WORKAROUND( x ) x
-#   else
-#       define BOOST_PIMPL_MSVC16_9_WORKAROUND( x )
-#   endif // MSVC bugs
-    auto_object(                      ) noexcept( std::is_nothrow_default_constructible_v<Interface> );
-    auto_object( auto_object       && ) noexcept( std::is_nothrow_move_constructible_v   <Interface> );
-    auto_object( auto_object const  & ) noexcept( std::is_nothrow_copy_constructible_v   <Interface> );
-    template <typename ... Args>
-    auto_object( fwd, Args && ...     );
-   ~auto_object(                      ) BOOST_PIMPL_MSVC16_9_WORKAROUND( noexcept( std::is_nothrow_destructible_v<Interface> ) );
+#if !defined( _MSC_FULL_VER ) || ( _MSC_FULL_VER < 192829910 ) // still w/ 17.8.5
+#   define PSI_PIMPL_MSVC16_9_WORKAROUND( x ) x
+#else
+#   define PSI_PIMPL_MSVC16_9_WORKAROUND( x )
+#endif // MSVC bugs
+    auto_object(                      )                                noexcept( std::is_nothrow_default_constructible_v<Interface> )  ;
+    auto_object( auto_object       && )                                noexcept( std::is_nothrow_move_constructible_v   <Interface> )  ;
+    auto_object( auto_object const  & )                                noexcept( std::is_nothrow_copy_constructible_v   <Interface> )  ;
+   ~auto_object(                      ) PSI_PIMPL_MSVC16_9_WORKAROUND( noexcept( std::is_nothrow_destructible_v         <Interface> ) );
 
-    auto_object& operator=( auto_object       && ) noexcept( std::is_nothrow_move_assignable<Interface>::value );
-    auto_object& operator=( auto_object const  & ) noexcept( std::is_nothrow_copy_assignable<Interface>::value );
+    auto_object & operator=( auto_object       && ) noexcept( std::is_nothrow_move_assignable<Interface>::value );
+    auto_object & operator=( auto_object const  & ) noexcept( std::is_nothrow_copy_assignable<Interface>::value );
 
     auto       & impl()       noexcept;
     auto const & impl() const noexcept;
 
 private:
+    template < typename ... Args > void construct( Args &&... );
+
     struct alignas( AlignOfImplementation ) storage_t { unsigned char raw_bytes[ SizeOfImplementation ]; };
-    storage_t storage;
+    storage_t storage_;
 }; // class auto_object
 
 #ifdef _MSC_VER
@@ -120,8 +112,5 @@ private:
 #endif // _MSC_VER
 
 //------------------------------------------------------------------------------
-} // namespace pimpl
+} // namespace psi::pimpl
 //------------------------------------------------------------------------------
-} // namespace boost
-//------------------------------------------------------------------------------
-#endif // pimpl_hpp
