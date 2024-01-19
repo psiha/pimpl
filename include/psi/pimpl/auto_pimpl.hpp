@@ -59,7 +59,7 @@ template
 <
     class Interface,
     std::uint32_t SizeOfImplementation,
-    std::uint8_t  AlignOfImplementation = sizeof( void * )
+    std::uint8_t  AlignOfImplementation = alignof( void * )
 >
 class [[ clang::trivial_abi ]] auto_object // the derived class can 'cancel' but not enable the trivial_abi attribute
 {
