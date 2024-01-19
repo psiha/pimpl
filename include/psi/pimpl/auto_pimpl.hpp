@@ -61,7 +61,7 @@ template
     std::uint32_t SizeOfImplementation,
     std::uint8_t  AlignOfImplementation = sizeof( void * )
 >
-class auto_object
+class [[ clang::trivial_abi ]] auto_object // the derived class can 'cancel' but not enable the trivial_abi attribute
 {
 public:
     using pimpl_base = auto_object;
