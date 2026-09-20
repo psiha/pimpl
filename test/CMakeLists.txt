@@ -1,0 +1,6 @@
+if ( PSI_PIMPL_MODULE AND TARGET psi_pimpl_module )
+    add_executable( pimpl_module_smoke_test EXCLUDE_FROM_ALL "${CMAKE_CURRENT_SOURCE_DIR}/module_smoke_test.cpp" )
+    target_link_libraries( pimpl_module_smoke_test PRIVATE psi::pimpl_module )
+    set_target_properties( pimpl_module_smoke_test PROPERTIES CXX_SCAN_FOR_MODULES ON DISABLE_PRECOMPILE_HEADERS ON )
+    add_test( NAME pimpl_module_smoke_test COMMAND pimpl_module_smoke_test )
+endif()
